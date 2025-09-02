@@ -5,6 +5,12 @@ from . import collector_evtapi as evt
 from . import collector_legacy as legacy
 from .formatters import human, top_by
 from .utils import window_filter
+import argparse, json
+from clearlog.config import load
+from clearlog import collector_evtapi as evt
+from clearlog import collector_legacy as legacy
+from clearlog.formatters import human, top_by
+from clearlog.utils import window_filter
 
 def collect(max_events, since=None):
     try:

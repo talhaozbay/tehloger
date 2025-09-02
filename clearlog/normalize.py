@@ -15,4 +15,4 @@ class AuthFail4625:
     substatus: Optional[str] # SubStatus
     process: Optional[str]   # ProcessName
     reason: str              # "Logon failure (4625)"
-    raw: Optional[str]       # kırpılmış XML
+    #raw: Optional[str]       # kırpılmış XML
