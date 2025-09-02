@@ -16,3 +16,6 @@ class AuthFail4625:
     process: Optional[str]   # ProcessName
     reason: str              # "Logon failure (4625)"
     #raw: Optional[str]       # kırpılmış XML
+
+
+#deneme deneme
