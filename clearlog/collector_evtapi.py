@@ -6,8 +6,16 @@ from xml.etree import ElementTree as ET
 
 QUERY = "*[System[(EventID=4625)]]"
 
-def _to_iso_utc(dt: datetime) -> str:
-    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+from datetime import datetime, timezone, timedelta
+
+UTC_PLUS_3 = timezone(timedelta(hours=3))
+
+def _to_iso_local(dt: datetime) -> str:
+    return dt.astimezone(UTC_PLUS_3).strftime("%d-%m-%YT%H:%M:%S%z")
+
+
+# def _to_iso_utc(dt: datetime) -> str:
+#     return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 def _as_str(val):
     return val if val and val != "-" else None
