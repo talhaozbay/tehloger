@@ -1,113 +1,113 @@
 # Tehloger
 
-`tehloger` Windows Güvenlik günlüğünden **4625 – Logon Failure** olaylarını toplayıp bunları kullanıcı dostu bir şekilde raporlamayı amaçlayan basit bir Python aracıdır. Bu olay türü hem yerel oturum açma ekranından hem de ağ üzerinden (RDP, SMB paylaşımı, WinRM vb.) gelen başarısız oturum açma denemeleri için oluşturulur. Araç, olaylardaki tarih ve kullanıcı bilgilerini normalleştirir, en çok deneme yapan IP adreslerini ve kullanıcıları listeleyebilir ve istenirse JSON çıktısı üretebilir.
+`tehloger` is a simple Python tool that collects **4625 – Logon Failure** events from the Windows Security log and reports them in a user‑friendly format. This event type is generated for both local login attempts and remote access attempts (RDP, SMB shares, WinRM, etc.). The tool normalizes timestamps and user information, lists the most frequent IP addresses and usernames, and can optionally output JSON.
 
-## Özellikler
+## Features
 
-- Windows Güvenlik günlüğünden 4625 kodlu hatalı oturum açma olaylarını okur.
-- Hem yerel hem de uzak oturum açma denemelerini toplar; uzak denemelerde IP adresi ve bilgisayar adı gibi alanları gösterir.
-- `pywin32` kütüphanesinin iki farklı API’sini kullanarak hem yeni (`EvtQuery`) hem de eski (`ReadEventLog`) yöntemlerle kayıt çekmeye çalışır ve gerekiyorsa otomatik olarak geri düşer.
-- Çıktı üç bölümden oluşur:
-  - **İnsan okunabilir liste (HUMAN READABLE)** – her bir girişin zamanını, kullanıcı adını, kaynak IP/host bilgisini, logon türünü ve durum kodunu gösterir.
-  - **En çok kaynak IP ve kullanıcı** – hangi IP adreslerinden ve hangi kullanıcı adlarıyla en çok deneme yapıldığını özetler.
-  - **JSON** – normalleştirilmiş olay nesnelerini JSON olarak çıktılar; `--json` parametresi ile bir dosyaya kaydedilebilir.
-- Parametreler ile esnek kullanım: `--since`, `--max` ve `--json`.
+- Reads failed logon events (ID 4625) from the Windows Security log.
+- Collects both local and remote login attempts; displays IP address and workstation name for remote attempts.
+- Uses two different `pywin32` APIs: new (`EvtQuery`) and legacy (`ReadEventLog`). Falls back automatically if needed.
+- Output consists of three sections:
+  - **Human Readable List** – shows timestamp, username, source IP/host, logon type, and status code.
+  - **Top Sources** – summarizes which IP addresses and usernames attempted the most logons.
+  - **JSON** – normalized event objects, can be saved with `--json` parameter.
+- Flexible usage via `--since`, `--max`, and `--json` parameters.
 
-## Gereksinimler
+## Requirements
 
-- Windows 10/11 veya sunucu sürümleri (Linux/macOS desteklenmez)
-- Python 3.7+ (Python 3.9 önerilir)
-- **Yönetici yetkileri (Administrator)** – Güvenlik günlüğüne erişim için gereklidir.
-- Python paketleri:
-  - `pywin32` – Windows olay günlüklerine erişim için
-  - `PyYAML` – yapılandırma dosyasını okumak için
+- Windows 10/11 or server editions (not supported on Linux/macOS)
+- Python 3.7+ (Python 3.9 recommended)
+- **Administrator privileges** required to access the Security log.
+- Python packages:
+  - `pywin32` – for accessing Windows event logs
+  - `PyYAML` – for reading configuration files
 
-## Kurulum
+## Installation
 
-Depoyu klonlayın veya indirin:
+Clone or download the repository:
 
 ```bash
 git clone https://github.com/talhaozbay/tehloger.git
 cd tehloger
 ```
 
-Bir sanal ortam oluşturup etkinleştirin (önerilir):
+Create and activate a virtual environment (recommended):
 
 ```bash
 python -m venv venv
 venv\Scripts\activate  # Windows PowerShell / Cmd
 ```
 
-Gereksinimleri yükleyin:
+Install dependencies:
 
 ```bash
 pip install pywin32 pyyaml
 ```
 
-Yapılandırma dosyasını düzeltin (`tehloger/default.yaml`):
+Fix the configuration file (`configs/default.yaml`):
 
 ```yaml
 threshold:
-  window_sec: 300   # 5 dakika penceresi
-  max_fails: 3      # uyarı eşiği
+  window_sec: 300   # 5-minute window
+  max_fails: 3      # alert threshold
 max_events: 500
 ```
 
-Python dosyalarını doğrudan çalıştırıyorsanız, `tehloger/main.py` içindeki göreceli içe aktarmaları mutlak hâle getirin veya aşağıdaki kullanım bölümündeki modül çağrısını tercih edin.
+If running Python files directly, make sure imports in `tehloger/main.py` are absolute, or use the module call described below.
 
-## Kullanım
+## Usage
 
-Paket olarak çalıştırmanız önerilir:
+Run as a package:
 
 ```bash
 python -m tehloger.main
 ```
 
-### Parametreler
+### Parameters
 
-- `--max <sayı>` – Kaç adet kayıt alınacağını sınırlar.
-- `--since <tarih>` – ISO 8601 biçiminde tarih (örn. `2025-09-01T00:00:00Z`).
-- `--json <dosya>` – JSON çıktısını dosyaya kaydeder.
+- `--max <number>` – limits the number of events retrieved.
+- `--since <datetime>` – ISO 8601 format (e.g., `2025-09-01T00:00:00Z`).
+- `--json <file>` – saves JSON output to the given file.
 
-### Örnekler
+### Examples
 
 ```bash
-# Son 200 başarısız giriş denemesini oku ve ekrana yazdır
+# Read the last 200 failed logon attempts and print them
 python -m tehloger.main --max 200
 
-# Son 24 saat içindeki olayları JSON dosyasına kaydet
+# Save all 4625 events from the last 24 hours to JSON
 python -m tehloger.main --since 2025-09-01T00:00:00Z --json C:\temp\failures.json
 ```
 
-**Not:** Komutu yönetici haklarıyla çalıştırmanız gerekir.
+**Note:** Run the command with administrator rights.
 
-## Zaman Damgaları ve Saat Dilimi
+## Timestamps and Time Zone
 
-Olaylar varsayılan olarak **UTC** cinsinden kaydedilir (`ts_utc` alanı ISO‑8601). Türkiye saati UTC+3 olduğundan `formatters.py` içinde dönüşüm yaparak yerel saate çevirebilirsiniz.
+Events are logged in **UTC** by default (`ts_utc` field in ISO‑8601). Since Turkey time is UTC+3, you can adjust formatting in `formatters.py` if you want to display local time.
 
-## Yapılandırma
+## Configuration
 
-`configs/default.yaml` içeriği:
+`configs/default.yaml` contains:
 
-- `threshold.window_sec` – pencere süresi (varsayılan: 300 sn)
-- `threshold.max_fails` – eşik (varsayılan: 3)
-- `max_events` – alınacak olay sayısı (varsayılan: 500)
+- `threshold.window_sec` – time window in seconds (default: 300)
+- `threshold.max_fails` – threshold for failed attempts (default: 3)
+- `max_events` – default number of events to fetch (default: 500)
 
-Dosya yoksa veya okunamazsa, `tehloger/config.py` içindeki varsayılan değerler kullanılır.
+If the file is missing or invalid, defaults in `tehloger/config.py` are used.
 
-## Neden bazı alanlar boş?
+## Why are some fields empty?
 
-Yerel oturum açma denemelerinde IP adresi, etki alanı adı veya uzak bilgisayar adı bulunmayabilir. Bu nedenle JSON çıktısında bu alanlar `null` görünebilir.
+Local logon attempts may not include IP address, domain name, or workstation name. In such cases, these fields appear as `null` in JSON output.
 
-## Testler
+## Tests
 
-Birim testi çalıştırmak için:
+Run basic unit tests with:
 
 ```bash
 pip install pytest
 pytest -q
 ```
 
-## Lisans ve Katkılar
+## License and Contributions
 
-Bu proje kişisel bir çalışmadır ve henüz açık kaynak lisansı ile lisanslanmamıştır. Hataları bildirmek veya katkıda bulunmak için pull request veya issue açabilirsiniz. Kullanım sırasında **şirket politikalarına ve mevzuata uygun hareket etmek sizin sorumluluğunuzdadır**.
+This project is a personal work and is not yet licensed under an open-source license. Feel free to open issues or pull requests for bug reports and contributions. **It is your responsibility to comply with company policies and legal regulations when using this tool.**
