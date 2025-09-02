@@ -1,4 +1,3 @@
-# clearlog/utils.py
 from datetime import datetime, timedelta, timezone
 def to_dt(s): return datetime.fromisoformat(s.replace("Z","+00:00"))
 def window_filter(events, seconds=300):

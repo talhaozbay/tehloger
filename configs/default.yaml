@@ -1,4 +1,4 @@
 threshold:
-  window_sec: 300   # 5 dakika penceresi
-  max_fails: 3      # uyarı eşiği
+  window_sec: 300
+  max_fails: 3
 max_events: 500

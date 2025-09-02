@@ -1,4 +1,3 @@
-# clearlog/formatters.py
 def human(events):
     lines = []
     for e in events:

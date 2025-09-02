@@ -1,4 +1,3 @@
-# clearlog/config.py
 import yaml, os
 DEFAULT = {"threshold":{"window_sec":300,"max_fails":3}, "max_events":500}
 def load(path="configs/default.yaml"):

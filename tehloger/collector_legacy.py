@@ -1,4 +1,3 @@
-# clearlog/collector_legacy.py
 import socket
 from datetime import datetime, timezone
 import win32evtlog
